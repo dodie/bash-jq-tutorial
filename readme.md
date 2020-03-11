@@ -9,6 +9,11 @@ The [calculate-bash-stats.sh](https://github.com/dodie/bash-jq-tutorial/blob/mas
 script scrapes data from these endpoints to calculate the percentage of bash related content.
 
 
+# Walkthrough for the script
+
+https://advancedweb.hu/how-to-bash-and-jq-generate-statistics-for-a-rest-api/
+
+
 # Usage
 
 - Start blog engine: `mvn spring-boot:run`
