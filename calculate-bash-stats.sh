@@ -20,15 +20,15 @@ main()
 }
 
 get_posts() {
-    PAGE_NUM=$1
-    RESPONSE=$(curl --silent --show-error "http://localhost:8080/posts?pageNumber=$PAGE_NUM")
+    local page_num=$1
+    local response=$(curl --silent --show-error "http://localhost:8080/posts?pageNumber=$page_num")
 
-    echo $RESPONSE
+    echo $response
 
-    LAST_PAGE_NUM=$(echo $RESPONSE | jq --compact-output '.lastPageNumber')
-    if [ "$PAGE_NUM" != "$LAST_PAGE_NUM" ]; then
-        NEXT_PAGE=$(($PAGE_NUM + 1))
-        get_posts $NEXT_PAGE
+    local last_page_num=$(echo $response | jq --compact-output '.lastPageNumber')
+    if [ "$page_num" != "$last_page_num" ]; then
+        local next_page=$(($page_num + 1))
+        get_posts $next_page
     fi
 }
 
@@ -50,11 +50,11 @@ add_length()
 
 add_length_()
 {
-    POST=$1
-    ID=$(echo $POST | jq '.id')
-    LENGTH=$(curl --silent --show-error "http://localhost:8080/posts/$ID" \
+    local post=$1
+    local id=$(echo $post | jq '.id')
+    local length=$(curl --silent --show-error "http://localhost:8080/posts/$id" \
                   | jq --raw-output '.content' | wc --chars)
-    echo $POST | jq --compact-output '. + {length: '$LENGTH'} | del( .id )'
+    echo $post | jq --compact-output '. + {length: '$length'} | del( .id )'
 }
 export -f add_length_
 
@@ -75,14 +75,14 @@ aggregate()
 
 report()
 {
-    while read OBJECT
+    while read object
     do
-        NON_BASH_LENGTH=$(echo $OBJECT | jq -c '.[] | select( .isBash==false ) | .lengthTotal')
-        BASH_LENGTH=$(echo $OBJECT | jq -c '.[] | select( .isBash==true ) | .lengthTotal')
-        TOTAL=$(echo "$NON_BASH_LENGTH + $BASH_LENGTH" | bc)
-        RATIO=$(echo "scale=4;($BASH_LENGTH / $TOTAL) * 100" | bc)
+        local non_bash_length=$(echo $object | jq -c '.[] | select( .isBash==false ) | .lengthTotal')
+        local bash_length=$(echo $object | jq -c '.[] | select( .isBash==true ) | .lengthTotal')
+        local total=$(echo "$non_bash_length + $bash_length" | bc)
+        local ratio=$(echo "scale=4;($bash_length / $total) * 100" | bc)
 
-        echo "Ratio: $RATIO %"
+        echo "Ratio: $ratio %"
     done < "${1:-/dev/stdin}"
 }
 main
